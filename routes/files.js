@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const File = require("../models/file");
 const { v4: uuid4 } = require("uuid");
-const file = require("../models/file");
+const emailTemplate = require("../services/emailTemplate");
 
 let storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads"),
@@ -33,7 +33,7 @@ router.post("/", (req, res) => {
       return res.status(500).send({ error: "Make sure to send file" });
     }
     const file = new File({
-      filename: req.file.fieldname, 
+      filename: req.file.fieldname,
       uuid: uuid4(),
       path: req.file.path,
       size: req.file.size,
@@ -43,6 +43,38 @@ router.post("/", (req, res) => {
       file: `${process.env.APP_BASE_URL}/files/${response.uuid}`,
     });
   });
+});
+
+router.post("/send", async (req, res) => {
+  const { uuid, emailTo, emailFrom } = req.body;
+  if (!(uuid && emailTo && emailFrom)) {
+    return res.status(422).send({ error: "All fields are required" });
+  }
+  const file = await File.findOne({ uuid: uuid });
+  if (!file)
+    return res.status(422).send({ error: "File not present or expired" });
+  if (file.sender) {
+    return res.status(422).send({ error: "Email already Sent" });
+  }
+
+  file.sender = emailFrom;
+  file.receiver = emailTo;
+  const response = await file.save();
+
+  const sendMail = require("../services/emailServices");
+  sendMail({
+    from: emailFrom,
+    to: emailTo,
+    subject: "You Got a new file",
+    text: `${emailFrom} shared a file with you`,
+    html: emailTemplate({
+      emailFrom: emailFrom,
+      downloadLink: `${process.env.APP_BASE_URL}/files/${uuid}`,
+      size: file.size,
+      expires: "24 hours",
+    }),
+  });
+  return res.send({ success: true });
 });
 
 module.exports = router;
