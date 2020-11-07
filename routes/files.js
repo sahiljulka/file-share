@@ -37,6 +37,7 @@ router.post("/", (req, res) => {
       uuid: uuid4(),
       path: req.file.path,
       size: req.file.size,
+      createdAt: new Date(),
     });
     const response = await file.save();
     return res.json({
@@ -71,11 +72,8 @@ router.post("/send", async (req, res) => {
     }),
   });
 
-  console.log(emailFrom);
-  console.log(emailTo);
-
   file.sender = emailFrom;
-  file.receiver = emailTo;
+  file.reciever = emailTo;
   const response = await file.save();
 
   return res.send({ success: true });

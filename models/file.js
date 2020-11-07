@@ -9,6 +9,7 @@ const fileSchema = new Schema(
     uuid: { type: String, required: true },
     sender: { type: String, required: false },
     reciever: { type: String, required: false },
+    createdAt: { type: String, required: false },
   },
   { timeStamps: true }
 );

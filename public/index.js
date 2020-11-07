@@ -64,7 +64,8 @@ submitFormContainer.addEventListener("submit", (e) => {
 
     // Displaying results to console
     .then((json) => {
-      showToast("Email Sent");
+      const msg = json.error || "Email Sent";
+      showToast(msg);
     });
 });
 
