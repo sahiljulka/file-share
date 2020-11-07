@@ -57,12 +57,8 @@ router.post("/send", async (req, res) => {
     return res.status(422).send({ error: "Email already Sent" });
   }
 
-  file.sender = emailFrom;
-  file.receiver = emailTo;
-  const response = await file.save();
-
   const sendMail = require("../services/emailServices");
-  sendMail({
+  await sendMail({
     from: emailFrom,
     to: emailTo,
     subject: "You Got a new file",
@@ -74,6 +70,14 @@ router.post("/send", async (req, res) => {
       expires: "24 hours",
     }),
   });
+
+  console.log(emailFrom);
+  console.log(emailTo);
+
+  file.sender = emailFrom;
+  file.receiver = emailTo;
+  const response = await file.save();
+
   return res.send({ success: true });
 });
 
