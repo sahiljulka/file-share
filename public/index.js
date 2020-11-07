@@ -10,6 +10,8 @@ const submitFormContainer = $(".form-style-4");
 const send_Form = $(".send-form");
 const toast = $(".toast");
 
+const maxSize = 100 * 1024 * 1024;
+
 dropZone.addEventListener("dragover", (e) => {
   if (!dropZone.classList.contains("dragged"))
     dropZone.classList.add("dragged");
@@ -24,10 +26,19 @@ dropZone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropZone.classList.remove("dragged");
   const files = e.dataTransfer.files;
+  if (files.length > 1) {
+    showToast("Number of files cannot be greater than 1");
+    return;
+  }
+
   if (files.length) upload(files[0]);
 });
 
 uploadFile.addEventListener("change", (e) => {
+  if (uploadFile.files.length > 1) {
+    showToast("Number of files cannot be greater than 1");
+    return;
+  }
   if (uploadFile.files.length > 0) upload(uploadFile.files[0]);
 });
 
@@ -62,6 +73,10 @@ function openFileInput() {
 }
 
 const upload = async (file) => {
+  if (file.size > maxSize) {
+    showToast("Size cannot exceed 100mb");
+    return;
+  }
   resetProgressBar();
   var data = new FormData();
   data.append("myfile", file);

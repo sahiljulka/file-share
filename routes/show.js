@@ -11,9 +11,9 @@ router.get("/:uuid", async (req, res) => {
     }
     return res.render("download", {
       uuid: file.uuid,
-      filename: file.filename,
-      filesize: file.size,
-      download: `${process.env.APP_BASE_URL}/files/download/${file.uuid}`,
+      fileName: file.filename,
+      fileSize: file.size,
+      downloadLink: `${process.env.APP_BASE_URL}/files/download/${file.uuid}`,
     });
   } catch (err) {
     return res.render("download", { error: "Something went wrong" });
